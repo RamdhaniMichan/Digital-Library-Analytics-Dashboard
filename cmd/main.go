@@ -2,17 +2,10 @@ package main
 
 import (
 	"digital-library-dashboard/config"
-	bookHandler "digital-library-dashboard/internal/book/handler"
-	bookRepository "digital-library-dashboard/internal/book/repository"
-	bookService "digital-library-dashboard/internal/book/service"
+	"digital-library-dashboard/pkg/utils"
 
-	userHandler "digital-library-dashboard/internal/user/handler"
-	userRepository "digital-library-dashboard/internal/user/repository"
-	userService "digital-library-dashboard/internal/user/service"
+	"digital-library-dashboard/internal/routes"
 
-	memberHandler "digital-library-dashboard/internal/member/handler"
-	memberRepository "digital-library-dashboard/internal/member/repository"
-	memberService "digital-library-dashboard/internal/member/service"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -34,25 +27,11 @@ func main() {
 	}
 
 	r := fiber.New()
-
-	// r.Post("/login", userHandler.LoginHandler(db))
+	r.Use(utils.Logger())
 
 	auth := r.Group("/api")
 
-	bookRepository := bookRepository.NewRepository(db)
-	bookService := bookService.NewService(bookRepository)
-	bookHandler.RegisterRoutes(auth, bookService)
-
-	userRepository := userRepository.NewRepository(db)
-	userService := userService.NewService(userRepository)
-	userHandler.RegisterRoutes(auth, userService)
-
-	memberRepository := memberRepository.NewRepository(db)
-	memberService := memberService.NewService(memberRepository)
-	memberHandler.RegisterRoutes(auth, memberService)
-
-	// lending.RegisterRoutes(auth, db)
-	// analytics.RegisterRoutes(auth, db)
+	routes.SetupRoute(auth, db)
 
 	log.Fatal(r.Listen(":8081"))
 }
