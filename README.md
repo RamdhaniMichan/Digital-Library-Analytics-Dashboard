@@ -19,47 +19,7 @@ A digital library management system built with Go Fiber and PostgreSQL.
 - Goose for Database Migrations
 
 ## Database Schema
-```mermaid
-erDiagram
-    USERS {
-        int id PK
-        string name
-        string email
-        string password
-        string role
-        timestamp created_at
-    }
-    BOOKS {
-        int id PK
-        string title
-        string author
-        string isbn
-        int quantity
-        int category_id FK
-        int created_by FK
-        timestamp created_at
-    }
-    MEMBERS {
-        int id PK
-        string name
-        string email
-        string phone
-        string address
-        timestamp joined_date
-    }
-    LENDINGS {
-        int id PK
-        int member_id FK
-        int book_id FK
-        timestamp borrowed_date
-        timestamp due_date
-        string status
-        int created_by FK
-    }
-    BOOKS ||--o{ LENDINGS : has
-    MEMBERS ||--o{ LENDINGS : borrows
-    USERS ||--o{ BOOKS : creates
-```
+![ERD](https://res.cloudinary.com/dwckpepep/image/upload/v1752867380/Untitled_xlzk4c.png)
 
 ## API Endpoints
 
