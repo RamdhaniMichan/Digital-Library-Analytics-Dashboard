@@ -10,6 +10,7 @@ type Repository interface {
 	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
+	UpdateStatusBook(b model.BookStatus) error
 	Delete(id int) error
 }
 
@@ -104,6 +105,12 @@ func (r *repo) Create(b model.Book) error {
 func (r *repo) Update(b model.Book) error {
 	_, err := r.db.Exec("UPDATE books SET title=$1, author=$2, isbn=$3, quantity=$4, category_id=$5 WHERE id=$6",
 		b.Title, b.Author, b.ISBN, b.Quantity, b.CategoryID, b.ID)
+	return err
+}
+
+func (r *repo) UpdateStatusBook(b model.BookStatus) error {
+	_, err := r.db.Exec("UPDATE book_status SET available_qty=$1, borrowed_qty=$2 WHERE book_id=$3",
+		b.AvailableQty, b.BorrowedQty, b.BookID)
 	return err
 }
 
