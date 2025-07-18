@@ -1,13 +1,12 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
 	"digital-library-dashboard/internal/analytics/model"
 )
 
 type AnalyticsRepository interface {
-	GetAnalytics(ctx context.Context) (model.AnalyticsResponse, error)
+	GetAnalytics() (model.AnalyticsResponse, error)
 }
 
 type analyticsRepo struct {
@@ -18,15 +17,15 @@ func NewAnalyticsRepository(db *sql.DB) AnalyticsRepository {
 	return &analyticsRepo{db: db}
 }
 
-func (r *analyticsRepo) GetAnalytics(ctx context.Context) (model.AnalyticsResponse, error) {
+func (r *analyticsRepo) GetAnalytics() (model.AnalyticsResponse, error) {
 	var res model.AnalyticsResponse
 
-	err := r.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM books`).Scan(&res.TotalBooks)
+	err := r.db.QueryRow(`SELECT COUNT(*) FROM books`).Scan(&res.TotalBooks)
 	if err != nil {
 		return res, err
 	}
 
-	err = r.db.QueryRowContext(ctx, `
+	err = r.db.QueryRow(`
 		SELECT 
 			COALESCE(SUM(available_qty), 0),
 			COALESCE(SUM(borrowed_qty), 0)
@@ -35,12 +34,12 @@ func (r *analyticsRepo) GetAnalytics(ctx context.Context) (model.AnalyticsRespon
 		return res, err
 	}
 
-	err = r.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM lending`).Scan(&res.TotalTransactions)
+	err = r.db.QueryRow(`SELECT COUNT(*) FROM lendings`).Scan(&res.TotalTransactions)
 	if err != nil {
 		return res, err
 	}
 
-	err = r.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM members WHERE status = 'active'`).Scan(&res.TotalMembers)
+	err = r.db.QueryRow(`SELECT COUNT(*) FROM members WHERE status = 'active'`).Scan(&res.TotalMembers)
 	if err != nil {
 		return res, err
 	}

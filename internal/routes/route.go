@@ -21,24 +21,32 @@ import (
 	lendingHandler "digital-library-dashboard/internal/lending/handler"
 	lendingRepository "digital-library-dashboard/internal/lending/repository"
 	lendingService "digital-library-dashboard/internal/lending/service"
+
+	analyticsHandler "digital-library-dashboard/internal/analytics/handler"
+	analyticsRepository "digital-library-dashboard/internal/analytics/repository"
+	analyticsService "digital-library-dashboard/internal/analytics/service"
 )
 
 func SetupRoute(auth fiber.Router, db *sql.DB) {
-	userRepository := userRepository.NewRepository(db)
-	userService := userService.NewService(userRepository)
-	userHandler.RegisterRoutes(auth.Group("/v1"), userService)
+	ur := userRepository.NewRepository(db)
+	us := userService.NewService(ur)
+	userHandler.RegisterRoutes(auth.Group("/v1"), us)
 
 	v1 := auth.Group("/v1", middleware.JWTMiddleware())
 
-	bookRepository := bookRepository.NewRepository(db)
-	bookService := bookService.NewService(bookRepository)
-	bookHandler.RegisterRoutes(v1, bookService)
+	br := bookRepository.NewRepository(db)
+	bs := bookService.NewService(br)
+	bookHandler.RegisterRoutes(v1, bs)
 
-	memberRepository := memberRepository.NewRepository(db)
-	memberService := memberService.NewService(memberRepository)
-	memberHandler.RegisterRoutes(v1, memberService)
+	mr := memberRepository.NewRepository(db)
+	ms := memberService.NewService(mr)
+	memberHandler.RegisterRoutes(v1, ms)
 
-	lendingRepository := lendingRepository.NewLendingRepository(db)
-	lendingService := lendingService.NewLendingService(lendingRepository, bookRepository, memberRepository)
-	lendingHandler.RegisterRoutes(v1, lendingService)
+	lr := lendingRepository.NewLendingRepository(db)
+	ls := lendingService.NewLendingService(lr, br, mr)
+	lendingHandler.RegisterRoutes(v1, ls)
+
+	ar := analyticsRepository.NewAnalyticsRepository(db)
+	as := analyticsService.NewAnalyticsService(ar)
+	analyticsHandler.RegisterRoutes(v1, as)
 }

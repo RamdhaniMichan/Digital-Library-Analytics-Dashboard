@@ -1,13 +1,12 @@
 package service
 
 import (
-	"context"
 	"digital-library-dashboard/internal/analytics/model"
 	"digital-library-dashboard/internal/analytics/repository"
 )
 
 type AnalyticsService interface {
-	GetAnalytics(ctx context.Context) (model.AnalyticsResponse, error)
+	GetAnalytics() (model.AnalyticsResponse, error)
 }
 
 type analyticsService struct {
@@ -18,6 +17,6 @@ func NewAnalyticsService(repo repository.AnalyticsRepository) AnalyticsService {
 	return &analyticsService{repo: repo}
 }
 
-func (s *analyticsService) GetAnalytics(ctx context.Context) (model.AnalyticsResponse, error) {
-	return s.repo.GetAnalytics(ctx)
+func (s *analyticsService) GetAnalytics() (model.AnalyticsResponse, error) {
+	return s.repo.GetAnalytics()
 }
