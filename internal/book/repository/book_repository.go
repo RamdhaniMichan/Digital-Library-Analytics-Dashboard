@@ -75,9 +75,30 @@ func (r *repo) GetByID(id int) (*model.BookWithCategory, error) {
 }
 
 func (r *repo) Create(b model.Book) error {
-	_, err := r.db.Exec("INSERT INTO books (title, author, isbn, quantity, category_id, created_by) VALUES ($1,$2,$3,$4,$5,$6)",
-		b.Title, b.Author, b.ISBN, b.Quantity, b.CategoryID, b.CreatedBy)
-	return err
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	err = tx.QueryRow(`
+		INSERT INTO books (title, author, isbn, quantity, category_id, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+		b.Title, b.Author, b.ISBN, b.Quantity, b.CategoryID, b.CreatedBy).Scan(&b.ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO book_status (book_id, available_qty, borrowed_qty)
+		VALUES ($1, $2, 0)
+	`, b.ID, b.Quantity)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (r *repo) Update(b model.Book) error {
