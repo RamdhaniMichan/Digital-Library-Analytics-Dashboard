@@ -18,13 +18,7 @@ func RegisterRoutes(r fiber.Router, svc service.Service) {
 }
 
 func (h *Handler) Register(c *fiber.Ctx) error {
-	type req struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
-	var body req
+	var body model.RegisterRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
 	}
@@ -41,15 +35,11 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 }
 
 func (h *Handler) Login(c *fiber.Ctx) error {
-	type req struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	var body req
-	if err := c.BodyParser(&body); err != nil {
+	var cred model.Credentials
+	if err := c.BodyParser(&cred); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
 	}
-	token, role, err := h.svc.Login(body.Email, body.Password)
+	token, role, err := h.svc.Login(cred.Email, cred.Password)
 	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "invalid credentials"})
 	}
