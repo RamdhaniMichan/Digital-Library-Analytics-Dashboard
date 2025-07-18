@@ -19,3 +19,8 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
+
+type UserClaim struct {
+	ID   int    `json:"id"`
+	Role string `json:"role"`
+}
