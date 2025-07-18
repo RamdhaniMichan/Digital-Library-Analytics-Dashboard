@@ -85,7 +85,25 @@ erDiagram
 - POST `/api/lendings` - Create new lending
 - PUT `/api/lendings/:id` - Update lending status
 
-## Setup Instructions
+### Running with Docker
+
+1. Clone repository
+```bash
+git clone https://github.com/RamdhaniMichan/Digital-Library-Analytics-Dashboard
+cd Digital-Library-Analytics-Dashboard
+```
+
+2. Build and run the containers
+```bash
+docker-compose up -d
+```
+
+3. Stop the containers
+```bash
+docker-compose down
+```
+
+## Manual Setup
 
 1. Clone repository
 ```bash
