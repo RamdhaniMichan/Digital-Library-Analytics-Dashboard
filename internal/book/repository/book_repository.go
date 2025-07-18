@@ -6,8 +6,8 @@ import (
 )
 
 type Repository interface {
-	GetAll() ([]model.Book, error)
-	GetByID(id int) (*model.Book, error)
+	GetAll() ([]model.BookWithCategory, error)
+	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
 	Delete(id int) error
@@ -21,17 +21,28 @@ func NewRepository(db *sql.DB) Repository {
 	return &repo{db}
 }
 
-func (r *repo) GetAll() ([]model.Book, error) {
-	rows, err := r.db.Query("SELECT id, title, author, isbn, quantity, category_id, created_by FROM books")
+func (r *repo) GetAll() ([]model.BookWithCategory, error) {
+	query := `
+		SELECT 
+			b.title, b.author, b.isbn, b.quantity, 
+			b.category_id, c.name AS category_name, b.created_by
+		FROM books b
+		JOIN categories c ON b.category_id = c.id
+	`
+
+	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var books []model.Book
+	var books []model.BookWithCategory
 	for rows.Next() {
-		var b model.Book
-		if err := rows.Scan(&b.ID, &b.Title, &b.Author, &b.ISBN, &b.Quantity, &b.CategoryID, &b.CreatedBy); err != nil {
+		var b model.BookWithCategory
+		if err := rows.Scan(
+			&b.Title, &b.Author, &b.ISBN, &b.Quantity,
+			&b.Category.ID, &b.Category.Name, &b.CreatedBy,
+		); err != nil {
 			return nil, err
 		}
 		books = append(books, b)
@@ -39,12 +50,27 @@ func (r *repo) GetAll() ([]model.Book, error) {
 	return books, nil
 }
 
-func (r *repo) GetByID(id int) (*model.Book, error) {
-	row := r.db.QueryRow("SELECT id, title, author, isbn, quantity, category_id, created_by FROM books WHERE id = $1", id)
-	var b model.Book
-	if err := row.Scan(&b.ID, &b.Title, &b.Author, &b.ISBN, &b.Quantity, &b.CategoryID, &b.CreatedBy); err != nil {
+func (r *repo) GetByID(id int) (*model.BookWithCategory, error) {
+	query := `
+		SELECT 
+			b.title, b.author, b.isbn, b.quantity, 
+			c.id AS category_id, c.name AS category_name, 
+			b.created_by
+		FROM books b
+		JOIN categories c ON b.category_id = c.id
+		WHERE b.id = $1
+	`
+
+	row := r.db.QueryRow(query, id)
+
+	var b model.BookWithCategory
+	if err := row.Scan(
+		&b.Title, &b.Author, &b.ISBN, &b.Quantity,
+		&b.Category.ID, &b.Category.Name, &b.CreatedBy,
+	); err != nil {
 		return nil, err
 	}
+
 	return &b, nil
 }
 

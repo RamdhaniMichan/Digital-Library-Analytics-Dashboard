@@ -6,8 +6,8 @@ import (
 )
 
 type Service interface {
-	GetAll() ([]model.Book, error)
-	GetByID(id int) (*model.Book, error)
+	GetAll() ([]model.BookWithCategory, error)
+	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
 	Delete(id int) error
@@ -21,11 +21,11 @@ func NewService(repo repository.Repository) Service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetAll() ([]model.Book, error) {
+func (s *service) GetAll() ([]model.BookWithCategory, error) {
 	return s.repo.GetAll()
 }
 
-func (s *service) GetByID(id int) (*model.Book, error) {
+func (s *service) GetByID(id int) (*model.BookWithCategory, error) {
 	return s.repo.GetByID(id)
 }
 

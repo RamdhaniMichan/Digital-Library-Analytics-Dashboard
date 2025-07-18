@@ -9,3 +9,12 @@ type Book struct {
 	CategoryID int    `json:"category_id"`
 	CreatedBy  int    `json:"created_by"`
 }
+
+type BookWithCategory struct {
+	Title     string   `json:"title"`
+	Author    string   `json:"author"`
+	ISBN      string   `json:"isbn"`
+	Quantity  int      `json:"quantity"`
+	Category  Category `json:"category"`
+	CreatedBy int      `json:"created_by"`
+}
