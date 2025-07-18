@@ -1,0 +1,11 @@
+package model
+
+type Book struct {
+	ID         int    `json:"id"`
+	Title      string `json:"title"`
+	Author     string `json:"author"`
+	ISBN       string `json:"isbn"`
+	Quantity   int    `json:"quantity"`
+	CategoryID int    `json:"category_id"`
+	CreatedBy  int    `json:"created_by"`
+}
