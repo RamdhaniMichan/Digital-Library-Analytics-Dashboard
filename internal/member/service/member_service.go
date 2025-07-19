@@ -10,7 +10,7 @@ import (
 type Service interface {
 	Create(m *model.Member) error
 	GetByID(id int) (*model.Member, error)
-	List(page, limit int) ([]*model.Member, *utils.Paginate, error)
+	List(page, limit int, filter model.MemberFilter) ([]*model.Member, *utils.Paginate, error)
 }
 
 type service struct {
@@ -30,8 +30,8 @@ func (s *service) GetByID(id int) (*model.Member, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *service) List(page, limit int) ([]*model.Member, *utils.Paginate, error) {
-	members, totalItems, err := s.repo.List(page, limit)
+func (s *service) List(page, limit int, filter model.MemberFilter) ([]*model.Member, *utils.Paginate, error) {
+	members, totalItems, err := s.repo.List(page, limit, filter)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -75,6 +75,10 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
+// @Param name query string false "Filter by name"
+// @Param email query string false "Filter by email"
+// @Param phone query string false "Filter by phone"
+// @Param address query string false "Filter by address"
 // @Success 200 {object} utils.SuccessResponse{data=[]model.Member, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/members [get]
@@ -83,7 +87,13 @@ func (h *Handler) List(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
 
-	members, paginate, err := h.svc.List(page, limit)
+	filter := model.MemberFilter{
+		Name:  c.Query("name"),
+		Email: c.Query("email"),
+		Phone: c.Query("phone"),
+	}
+
+	members, paginate, err := h.svc.List(page, limit, filter)
 	if err != nil {
 		return utils.ErrorResponseFunc(c, http.StatusInternalServerError, err.Error())
 	}

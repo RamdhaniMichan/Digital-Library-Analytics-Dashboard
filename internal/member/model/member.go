@@ -11,3 +11,9 @@ type Member struct {
 	Status     string    `json:"status"`
 	JoinedDate time.Time `json:"joined_date"`
 }
+
+type MemberFilter struct {
+	Name  string `query:"name"`
+	Email string `query:"email"`
+	Phone string `query:"phone"`
+}
