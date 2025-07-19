@@ -24,36 +24,34 @@ A digital library management system built with Go Fiber and PostgreSQL.
 ## API Endpoints
 
 ### Authentication
-- POST `/api/register` - Register new user
-- POST `/api/login` - Login user
+- POST `/api/v1/register` - Register new user
+- POST `/api/v1/login` - Login user
 
 ### Books
-- GET `/api/books` - List all books
+- GET `/api/v1/books` - List all books
   - Query params: `page`, `limit`, `title`, `author`, `category_id`
-- GET `/api/books/:id` - Get book by ID
-- POST `/api/books` - Create new book (admin only)
-- PUT `/api/books/:id` - Update book (admin only)
-- DELETE `/api/books/:id` - Delete book (admin only)
+- GET `/api/v1/books/:id` - Get book by ID
+- POST `/api/v1/books` - Create new book (admin only)
+- PUT `/api/v1/books/:id` - Update book (admin only)
+- DELETE `/api/v1/books/:id` - Delete book (admin only)
 
 ### Members
-- GET `/api/members` - List all members
-  - Query params: `page`, `limit`, `name`, `email`, `phone`, `address`
-- GET `/api/members/:id` - Get member by ID
-- POST `/api/members` - Create new member (admin only)
-- PUT `/api/members/:id` - Update member (admin only)
-- DELETE `/api/members/:id` - Delete member (admin only)
+- GET `/api/v1/members` - List all members
+  - Query params: `page`, `limit`, `name`, `email`, `phone`
+- GET `/api/v1/members/:id` - Get member by ID
+- POST `/api/v1/members` - Create new member (admin only)
+- PUT `/api/v1/members/:id` - Update member (admin only)
+- DELETE `/api/v1/members/:id` - Delete member (admin only)
 
 ### Lending
-- GET `/api/lendings` - List all lending records
+- GET `/api/v1/lendings` - List all lending records
   - Query params: `page`, `limit`, `member_id`, `book_id`, `status`, `start_date`, `end_date`
-- GET `/api/lendings/:id` - Get lending by ID
-- POST `/api/lendings` - Create new lending (admin only)
-- PUT `/api/lendings/:id` - Update lending status (admin only)
+- GET `/api/v1/lendings/:id` - Get lending by ID
+- POST `/api/v1/lendings` - Create new lending (admin only)
+- PUT `/api/v1/lendings/:id` - Update lending status (admin only)
 
 ### Analytics
-- GET `/api/analytics/books` - Get book statistics
-- GET `/api/analytics/members` - Get member statistics
-- GET `/api/analytics/lendings` - Get lending statistics
+- GET `/api/v1/analytics/` - Get statistics data
 
 
 ### Running with Docker
