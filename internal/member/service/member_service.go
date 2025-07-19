@@ -3,13 +3,14 @@ package service
 import (
 	"digital-library-dashboard/internal/member/model"
 	"digital-library-dashboard/internal/member/repository"
+	"digital-library-dashboard/pkg/utils"
 	"time"
 )
 
 type Service interface {
 	Create(m *model.Member) error
 	GetByID(id int) (*model.Member, error)
-	List() ([]*model.Member, error)
+	List(page, limit int) ([]*model.Member, *utils.Paginate, error)
 }
 
 type service struct {
@@ -29,6 +30,12 @@ func (s *service) GetByID(id int) (*model.Member, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *service) List() ([]*model.Member, error) {
-	return s.repo.List()
+func (s *service) List(page, limit int) ([]*model.Member, *utils.Paginate, error) {
+	members, totalItems, err := s.repo.List(page, limit)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	paginate := utils.NewPaginate(page, limit, totalItems)
+	return members, paginate, nil
 }

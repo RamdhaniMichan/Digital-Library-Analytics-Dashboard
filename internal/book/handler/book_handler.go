@@ -32,16 +32,26 @@ type Handler struct {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
-// @Success 200 {object} []model.Book
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Success 200 {object} utils.SuccessResponse{data=[]model.BookWithCategory, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/books [get]
 // @Security BearerAuth
 func (h *Handler) GetAll(c *fiber.Ctx) error {
-	books, err := h.svc.GetAll()
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 10)
+
+	books, paginate, err := h.svc.GetAll(page, limit)
+
 	if err != nil {
 		return utils.ErrorResponseFunc(c, http.StatusInternalServerError, err.Error())
 	}
-	return utils.SuccessResponseFunc(c, http.StatusOK, "Success get books", books)
+
+	return utils.SuccessResponseFunc(c, http.StatusOK, "Success get books", fiber.Map{
+		"data":     books,
+		"paginate": paginate,
+	})
 }
 
 // @Summary GetBookByID
@@ -51,7 +61,8 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Book ID"
-// @Success 200 {object} model.Book
+// @Success 200 {object} utils.SuccessResponse{data=model.BookWithCategory}
+// @Failure 404 {object} utils.ErrorResponse
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 404 {object} utils.ErrorResponse
 // @Router /v1/books/{id} [get]
@@ -75,7 +86,7 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param book body model.Book true "Book data"
-// @Success 201 {object} model.Book
+// @Success 201 {object} utils.SuccessResponse{message=string}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/books [post]
@@ -102,7 +113,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Book ID"
 // @Param book body model.Book true "Book data"
-// @Success 200 {object} model.Book
+// @Success 200 {object} utils.SuccessResponse{data=model.Book}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
@@ -131,7 +142,7 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Book ID"
-// @Success 204 {object} utils.SuccessResponse
+// @Success 204 {object} utils.SuccessResponse{message=string}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse

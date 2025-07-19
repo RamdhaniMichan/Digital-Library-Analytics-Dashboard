@@ -9,7 +9,7 @@ import (
 
 type LendingRepository interface {
 	Create(l model.Lending) error
-	GetAll() ([]model.Lending, error)
+	GetAll(page, limit int) ([]model.Lending, int, error)
 	GetByID(id int) (model.Lending, error)
 	Update(l model.Lending) error
 	Delete(id int) error
@@ -70,10 +70,13 @@ func (r *lendingRepository) Create(l model.Lending) error {
 	return tx.Commit()
 }
 
-func (r *lendingRepository) GetAll() ([]model.Lending, error) {
-	rows, err := r.db.Query(`SELECT id, book_id, member_id, borrowed_date, due_date, return_date, status, created_by FROM lendings`)
+func (r *lendingRepository) GetAll(page, limit int) ([]model.Lending, int, error) {
+	rows, err := r.db.Query(`SELECT id, book_id, member_id, borrowed_date, due_date, return_date, status, created_by 
+			FROM lendings
+			ORDER BY id DESC
+			LIMIT $1 OFFSET $2`, limit, (page-1)*limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -82,11 +85,11 @@ func (r *lendingRepository) GetAll() ([]model.Lending, error) {
 		var l model.Lending
 		err := rows.Scan(&l.ID, &l.BookID, &l.MemberID, &l.BorrowedDate, &l.DueDate, &l.ReturnDate, &l.Status, &l.CreatedBy)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		lendings = append(lendings, l)
 	}
-	return lendings, nil
+	return lendings, len(lendings), nil
 }
 
 func (r *lendingRepository) GetByID(id int) (model.Lending, error) {

@@ -26,7 +26,7 @@ func RegisterRoutes(r fiber.Router, svc service.Service) {
 // @Accept json
 // @Produce json
 // @Param user body model.RegisterRequest true "User registration data"
-// @Success 200 {object} model.User
+// @Success 200 {object} utils.SuccessResponse{data=model.User}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/register [post]

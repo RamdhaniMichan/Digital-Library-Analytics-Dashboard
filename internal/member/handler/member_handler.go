@@ -29,7 +29,7 @@ func RegisterRoutes(r fiber.Router, svc service.Service) {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param member body model.Member true "Member data"
-// @Success 201 {object} model.Member
+// @Success 201 {object} utils.SuccessResponse{data=model.Member}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/members [post]
@@ -53,7 +53,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Member ID"
-// @Success 200 {object} model.Member
+// @Success 200 {object} utils.SuccessResponse{data=model.Member}
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/members/{id} [get]
@@ -73,14 +73,22 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
-// @Success 200 {object} []model.Member
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Success 200 {object} utils.SuccessResponse{data=[]model.Member, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/members [get]
 // @Security BearerAuth
 func (h *Handler) List(c *fiber.Ctx) error {
-	members, err := h.svc.List()
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 10)
+
+	members, paginate, err := h.svc.List(page, limit)
 	if err != nil {
 		return utils.ErrorResponseFunc(c, http.StatusInternalServerError, err.Error())
 	}
-	return utils.SuccessResponseFunc(c, http.StatusOK, "Success get members", members)
+	return utils.SuccessResponseFunc(c, http.StatusOK, "Success get members", fiber.Map{
+		"data":     members,
+		"paginate": paginate,
+	})
 }

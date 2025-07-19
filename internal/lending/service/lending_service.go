@@ -5,12 +5,13 @@ import (
 	"digital-library-dashboard/internal/lending/model"
 	"digital-library-dashboard/internal/lending/repository"
 	memberRepository "digital-library-dashboard/internal/member/repository"
+	"digital-library-dashboard/pkg/utils"
 	"errors"
 )
 
 type LendingService interface {
 	Create(l model.Lending) error
-	GetAll() ([]model.Lending, error)
+	GetAll(page, limit int) ([]model.Lending, *utils.Paginate, error)
 	GetByID(id int) (model.Lending, error)
 	Update(l model.Lending) error
 	Delete(id int) error
@@ -57,8 +58,13 @@ func (s *lendingService) Create(l model.Lending) error {
 	return s.repo.Create(l)
 }
 
-func (s *lendingService) GetAll() ([]model.Lending, error) {
-	return s.repo.GetAll()
+func (s *lendingService) GetAll(page, limit int) ([]model.Lending, *utils.Paginate, error) {
+	lendings, totalItems, err := s.repo.GetAll(page, limit)
+	if err != nil {
+		return nil, nil, err
+	}
+	paginate := utils.NewPaginate(page, limit, totalItems)
+	return lendings, paginate, nil
 }
 
 func (s *lendingService) GetByID(id int) (model.Lending, error) {

@@ -34,7 +34,7 @@ func RegisterRoutes(r fiber.Router, svc service.LendingService) {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param lending body model.Lending true "Lending data"
-// @Success 201 {object} model.Lending
+// @Success 201 {object} utils.SuccessResponse{data=model.Lending}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/lendings [post]
@@ -62,16 +62,24 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
-// @Success 200 {object} []model.Lending
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Success 200 {object} utils.SuccessResponse{data=[]model.Lending, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/lendings [get]
 // @Security BearerAuth
 func (h *Handler) GetAll(c *fiber.Ctx) error {
-	data, err := h.svc.GetAll()
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 10)
+
+	data, paginate, err := h.svc.GetAll(page, limit)
 	if err != nil {
 		return utils.ErrorResponseFunc(c, fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(data)
+	return utils.SuccessResponseFunc(c, fiber.StatusOK, "success get lendings", fiber.Map{
+		"data":     data,
+		"paginate": paginate,
+	})
 }
 
 // @Summary Get Lending by ID
@@ -81,7 +89,7 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Lending ID"
-// @Success 200 {object} model.Lending
+// @Success 200 {object} utils.SuccessResponse{data=model.Lending}
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/lendings/{id} [get]
@@ -103,7 +111,7 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Lending ID"
 // @Param lending body model.Lending true "Lending data"
-// @Success 200 {object} utils.SuccessResponse{message=string}
+// @Success 200 {object} utils.SuccessResponse{data=model.Lending}
 // @Failure 400 {object} utils.ErrorResponse
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
@@ -130,7 +138,7 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 // @Produce json
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param id path int true "Lending ID"
-// @Success 200 {object} utils.SuccessResponse{message=string}
+// @Success 200 {object} utils.SuccessResponse{data=string}
 // @Failure 404 {object} utils.ErrorResponse
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/lendings/{id} [delete]

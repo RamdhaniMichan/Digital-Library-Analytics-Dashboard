@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	Create(m *model.Member) error
 	GetByID(id int) (*model.Member, error)
-	List() ([]*model.Member, error)
+	List(page, limit int) ([]*model.Member, int, error)
 }
 
 type repository struct {
@@ -31,10 +31,10 @@ func (r *repository) GetByID(id int) (*model.Member, error) {
 	return m, err
 }
 
-func (r *repository) List() ([]*model.Member, error) {
-	rows, err := r.db.Query(`SELECT id, user_id, name, email, phone, status, joined_date FROM members`)
+func (r *repository) List(page, limit int) ([]*model.Member, int, error) {
+	rows, err := r.db.Query(`SELECT id, user_id, name, email, phone, status, joined_date FROM members LIMIT $1 OFFSET $2`, limit, (page-1)*limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -43,9 +43,9 @@ func (r *repository) List() ([]*model.Member, error) {
 		m := &model.Member{}
 		err := rows.Scan(&m.ID, &m.UserID, &m.Name, &m.Email, &m.Phone, &m.Status, &m.JoinedDate)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		list = append(list, m)
 	}
-	return list, nil
+	return list, len(list), nil
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	GetAll() ([]model.BookWithCategory, error)
+	GetAll(offset, limit int) ([]model.BookWithCategory, int, error)
 	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
@@ -22,18 +22,20 @@ func NewRepository(db *sql.DB) Repository {
 	return &repo{db}
 }
 
-func (r *repo) GetAll() ([]model.BookWithCategory, error) {
+func (r *repo) GetAll(offset, limit int) ([]model.BookWithCategory, int, error) {
 	query := `
 		SELECT 
 			b.title, b.author, b.isbn, b.quantity, 
 			b.category_id, c.name AS category_name, b.created_by
 		FROM books b
 		JOIN categories c ON b.category_id = c.id
+		ORDER BY b.id DESC
+		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.Query(query, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -44,11 +46,11 @@ func (r *repo) GetAll() ([]model.BookWithCategory, error) {
 			&b.Title, &b.Author, &b.ISBN, &b.Quantity,
 			&b.Category.ID, &b.Category.Name, &b.CreatedBy,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		books = append(books, b)
 	}
-	return books, nil
+	return books, len(books), nil
 }
 
 func (r *repo) GetByID(id int) (*model.BookWithCategory, error) {
