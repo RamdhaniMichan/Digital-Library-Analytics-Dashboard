@@ -29,21 +29,32 @@ A digital library management system built with Go Fiber and PostgreSQL.
 
 ### Books
 - GET `/api/books` - List all books
+  - Query params: `page`, `limit`, `title`, `author`, `category_id`
 - GET `/api/books/:id` - Get book by ID
-- POST `/api/books` - Create new book
-- PUT `/api/books/:id` - Update book
-- DELETE `/api/books/:id` - Delete book
+- POST `/api/books` - Create new book (admin only)
+- PUT `/api/books/:id` - Update book (admin only)
+- DELETE `/api/books/:id` - Delete book (admin only)
 
 ### Members
 - GET `/api/members` - List all members
+  - Query params: `page`, `limit`, `name`, `email`, `phone`, `address`
 - GET `/api/members/:id` - Get member by ID
-- POST `/api/members` - Create new member
+- POST `/api/members` - Create new member (admin only)
+- PUT `/api/members/:id` - Update member (admin only)
+- DELETE `/api/members/:id` - Delete member (admin only)
 
 ### Lending
 - GET `/api/lendings` - List all lending records
+  - Query params: `page`, `limit`, `member_id`, `book_id`, `status`, `start_date`, `end_date`
 - GET `/api/lendings/:id` - Get lending by ID
-- POST `/api/lendings` - Create new lending
-- PUT `/api/lendings/:id` - Update lending status
+- POST `/api/lendings` - Create new lending (admin only)
+- PUT `/api/lendings/:id` - Update lending status (admin only)
+
+### Analytics
+- GET `/api/analytics/books` - Get book statistics
+- GET `/api/analytics/members` - Get member statistics
+- GET `/api/analytics/lendings` - Get lending statistics
+
 
 ### Running with Docker
 
