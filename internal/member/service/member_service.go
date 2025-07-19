@@ -3,6 +3,7 @@ package service
 import (
 	"digital-library-dashboard/internal/member/model"
 	"digital-library-dashboard/internal/member/repository"
+	"time"
 )
 
 type Service interface {
@@ -20,6 +21,7 @@ func NewService(repo repository.Repository) Service {
 }
 
 func (s *service) Create(m *model.Member) error {
+	m.JoinedDate = time.Now()
 	return s.repo.Create(m)
 }
 

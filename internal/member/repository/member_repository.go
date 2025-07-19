@@ -20,8 +20,8 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 func (r *repository) Create(m *model.Member) error {
-	return r.db.QueryRow(`INSERT INTO members (user_id, name, email, phone, status, joined_date) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-		m.UserID, m.Name, m.Email, m.Phone, "active", m.JoinedDate).Scan(&m.ID)
+	return r.db.QueryRow(`INSERT INTO members (user_id, name, email, phone, status, joined_date) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, status, joined_date`,
+		m.UserID, m.Name, m.Email, m.Phone, "active", m.JoinedDate).Scan(&m.ID, &m.Status, &m.JoinedDate)
 }
 
 func (r *repository) GetByID(id int) (*model.Member, error) {
