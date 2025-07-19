@@ -54,7 +54,7 @@ A digital library management system built with Go Fiber and PostgreSQL.
 - GET `/api/v1/analytics/` - Get statistics data
 
 
-### Running with Docker
+## Running with Docker
 
 1. Clone repository
 ```bash
