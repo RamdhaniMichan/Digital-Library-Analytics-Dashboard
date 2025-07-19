@@ -724,6 +724,22 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by email
+        in: query
+        name: email
+        type: string
+      - description: Filter by phone
+        in: query
+        name: phone
+        type: string
+      - description: Filter by address
+        in: query
+        name: address
+        type: string
       produces:
       - application/json
       responses:
