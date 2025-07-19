@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	GetAll(page, limit int) ([]model.BookWithCategory, *utils.Paginate, error)
+	GetAll(page, limit int, filter model.BookFilter) ([]model.BookWithCategory, *utils.Paginate, error)
 	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
@@ -22,8 +22,8 @@ func NewService(repo repository.Repository) Service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetAll(page, limit int) ([]model.BookWithCategory, *utils.Paginate, error) {
-	books, totalItems, err := s.repo.GetAll(page, limit)
+func (s *service) GetAll(page, limit int, filter model.BookFilter) ([]model.BookWithCategory, *utils.Paginate, error) {
+	books, totalItems, err := s.repo.GetAll(page, limit, filter)
 	if err != nil {
 		return nil, nil, err
 	}

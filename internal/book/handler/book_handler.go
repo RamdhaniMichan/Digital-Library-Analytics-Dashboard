@@ -34,6 +34,9 @@ type Handler struct {
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
+// @Param title query string false "Filter by title"
+// @Param author query string false "Filter by author"
+// @Param category_id query int false "Filter by category ID"
 // @Success 200 {object} utils.SuccessResponse{data=[]model.BookWithCategory, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/books [get]
@@ -42,7 +45,13 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
 
-	books, paginate, err := h.svc.GetAll(page, limit)
+	filter := model.BookFilter{
+		Title:    c.Query("title"),
+		Author:   c.Query("author"),
+		Category: c.QueryInt("category_id", 0),
+	}
+
+	books, paginate, err := h.svc.GetAll(page, limit, filter)
 
 	if err != nil {
 		return utils.ErrorResponseFunc(c, http.StatusInternalServerError, err.Error())

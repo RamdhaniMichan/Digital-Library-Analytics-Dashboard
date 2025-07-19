@@ -3,10 +3,11 @@ package repository
 import (
 	"database/sql"
 	"digital-library-dashboard/internal/book/model"
+	"fmt"
 )
 
 type Repository interface {
-	GetAll(offset, limit int) ([]model.BookWithCategory, int, error)
+	GetAll(offset, limit int, filter model.BookFilter) ([]model.BookWithCategory, int, error)
 	GetByID(id int) (*model.BookWithCategory, error)
 	Create(b model.Book) error
 	Update(b model.Book) error
@@ -22,18 +23,39 @@ func NewRepository(db *sql.DB) Repository {
 	return &repo{db}
 }
 
-func (r *repo) GetAll(offset, limit int) ([]model.BookWithCategory, int, error) {
+func (r *repo) GetAll(offset, limit int, filter model.BookFilter) ([]model.BookWithCategory, int, error) {
 	query := `
-		SELECT 
-			b.title, b.author, b.isbn, b.quantity, 
-			b.category_id, c.name AS category_name, b.created_by
-		FROM books b
-		JOIN categories c ON b.category_id = c.id
-		ORDER BY b.id DESC
-		LIMIT $1 OFFSET $2
-	`
+        SELECT b.title, b.author, b.isbn, b.quantity, b.created_by,
+               c.id as category_id, c.name as category_name
+        FROM books b
+        LEFT JOIN categories c ON b.category_id = c.id
+        WHERE 1=1
+    `
+	args := []interface{}{}
+	argPos := 1
 
-	rows, err := r.db.Query(query, limit, offset)
+	if filter.Title != "" {
+		query += fmt.Sprintf(" AND b.title ILIKE $%d", argPos)
+		args = append(args, "%"+filter.Title+"%")
+		argPos++
+	}
+
+	if filter.Author != "" {
+		query += fmt.Sprintf(" AND b.author ILIKE $%d", argPos)
+		args = append(args, "%"+filter.Author+"%")
+		argPos++
+	}
+
+	if filter.Category > 0 {
+		query += fmt.Sprintf(" AND b.category_id = $%d", argPos)
+		args = append(args, filter.Category)
+		argPos++
+	}
+
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPos, argPos+1)
+	args = append(args, limit, offset)
+
+	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -43,8 +65,8 @@ func (r *repo) GetAll(offset, limit int) ([]model.BookWithCategory, int, error) 
 	for rows.Next() {
 		var b model.BookWithCategory
 		if err := rows.Scan(
-			&b.Title, &b.Author, &b.ISBN, &b.Quantity,
-			&b.Category.ID, &b.Category.Name, &b.CreatedBy,
+			&b.Title, &b.Author, &b.ISBN, &b.Quantity, &b.CreatedBy,
+			&b.Category.ID, &b.Category.Name,
 		); err != nil {
 			return nil, 0, err
 		}
