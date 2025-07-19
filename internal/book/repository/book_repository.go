@@ -53,7 +53,7 @@ func (r *repo) GetAll(offset, limit int, filter model.BookFilter) ([]model.BookW
 	}
 
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPos, argPos+1)
-	args = append(args, limit, offset)
+	args = append(args, limit, (offset-1)*limit)
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
