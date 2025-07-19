@@ -64,6 +64,11 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 // @Param Authorization header string true "Bearer token for authentication"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
+// @Param member_id query int false "Filter by member ID"
+// @Param book_id query int false "Filter by book ID"
+// @Param status query string false "Filter by status" Enums(borrowed, returned)
+// @Param start_date query string false "Filter by start date (YYYY-MM-DD)"
+// @Param end_date query string false "Filter by end date (YYYY-MM-DD)"
 // @Success 200 {object} utils.SuccessResponse{data=[]model.Lending, paginate=utils.Paginate}
 // @Failure 500 {object} utils.ErrorResponse
 // @Router /v1/lendings [get]
@@ -72,7 +77,27 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
 
-	data, paginate, err := h.svc.GetAll(page, limit)
+	var startDate, endDate time.Time
+	if sd := c.Query("start_date"); sd != "" {
+		if t, err := time.Parse("2006-01-02", sd); err == nil {
+			startDate = t
+		}
+	}
+	if ed := c.Query("end_date"); ed != "" {
+		if t, err := time.Parse("2006-01-02", ed); err == nil {
+			endDate = t
+		}
+	}
+
+	filter := model.LendingFilter{
+		MemberID:  c.QueryInt("member_id", 0),
+		BookID:    c.QueryInt("book_id", 0),
+		Status:    c.Query("status"),
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+
+	data, paginate, err := h.svc.GetAll(page, limit, filter)
 	if err != nil {
 		return utils.ErrorResponseFunc(c, fiber.StatusInternalServerError, err.Error())
 	}

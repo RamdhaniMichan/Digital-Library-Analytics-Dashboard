@@ -11,7 +11,7 @@ import (
 
 type LendingService interface {
 	Create(l model.Lending) error
-	GetAll(page, limit int) ([]model.Lending, *utils.Paginate, error)
+	GetAll(page, limit int, filter model.LendingFilter) ([]model.Lending, *utils.Paginate, error)
 	GetByID(id int) (model.Lending, error)
 	Update(l model.Lending) error
 	Delete(id int) error
@@ -58,8 +58,8 @@ func (s *lendingService) Create(l model.Lending) error {
 	return s.repo.Create(l)
 }
 
-func (s *lendingService) GetAll(page, limit int) ([]model.Lending, *utils.Paginate, error) {
-	lendings, totalItems, err := s.repo.GetAll(page, limit)
+func (s *lendingService) GetAll(page, limit int, filter model.LendingFilter) ([]model.Lending, *utils.Paginate, error) {
+	lendings, totalItems, err := s.repo.GetAll(page, limit, filter)
 	if err != nil {
 		return nil, nil, err
 	}

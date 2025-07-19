@@ -12,3 +12,11 @@ type Lending struct {
 	Status       string     `json:"status"`
 	CreatedBy    int        `json:"created_by"`
 }
+
+type LendingFilter struct {
+	MemberID  int       `query:"member_id"`
+	BookID    int       `query:"book_id"`
+	Status    string    `query:"status"`
+	StartDate time.Time `query:"start_date"`
+	EndDate   time.Time `query:"end_date"`
+}

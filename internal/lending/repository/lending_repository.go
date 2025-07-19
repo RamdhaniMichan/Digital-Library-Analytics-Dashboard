@@ -9,7 +9,7 @@ import (
 
 type LendingRepository interface {
 	Create(l model.Lending) error
-	GetAll(page, limit int) ([]model.Lending, int, error)
+	GetAll(page, limit int, filter model.LendingFilter) ([]model.Lending, int, error)
 	GetByID(id int) (model.Lending, error)
 	Update(l model.Lending) error
 	Delete(id int) error
@@ -70,11 +70,49 @@ func (r *lendingRepository) Create(l model.Lending) error {
 	return tx.Commit()
 }
 
-func (r *lendingRepository) GetAll(page, limit int) ([]model.Lending, int, error) {
-	rows, err := r.db.Query(`SELECT id, book_id, member_id, borrowed_date, due_date, return_date, status, created_by 
-			FROM lendings
-			ORDER BY id DESC
-			LIMIT $1 OFFSET $2`, limit, (page-1)*limit)
+func (r *lendingRepository) GetAll(page, limit int, filter model.LendingFilter) ([]model.Lending, int, error) {
+	query := `
+        SELECT id, book_id, member_id, borrowed_date, due_date, return_date, status, created_by 
+        FROM lendings
+        WHERE 1=1`
+
+	args := []interface{}{}
+	argPos := 1
+
+	if filter.MemberID > 0 {
+		query += fmt.Sprintf(" AND member_id = $%d", argPos)
+		args = append(args, filter.MemberID)
+		argPos++
+	}
+
+	if filter.BookID > 0 {
+		query += fmt.Sprintf(" AND book_id = $%d", argPos)
+		args = append(args, filter.BookID)
+		argPos++
+	}
+
+	if filter.Status != "" {
+		query += fmt.Sprintf(" AND status = $%d", argPos)
+		args = append(args, filter.Status)
+		argPos++
+	}
+
+	if !filter.StartDate.IsZero() {
+		query += fmt.Sprintf(" AND borrowed_date >= $%d", argPos)
+		args = append(args, filter.StartDate)
+		argPos++
+	}
+
+	if !filter.EndDate.IsZero() {
+		query += fmt.Sprintf(" AND borrowed_date <= $%d", argPos)
+		args = append(args, filter.EndDate)
+		argPos++
+	}
+
+	query += " ORDER BY id DESC LIMIT $" + fmt.Sprint(argPos) + " OFFSET $" + fmt.Sprint(argPos+1)
+	args = append(args, limit, (page-1)*limit)
+
+	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, 0, err
 	}
