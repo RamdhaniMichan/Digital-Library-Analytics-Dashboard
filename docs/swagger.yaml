@@ -214,6 +214,18 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by title
+        in: query
+        name: title
+        type: string
+      - description: Filter by author
+        in: query
+        name: author
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
       produces:
       - application/json
       responses:
@@ -436,6 +448,29 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by member ID
+        in: query
+        name: member_id
+        type: integer
+      - description: Filter by book ID
+        in: query
+        name: book_id
+        type: integer
+      - description: Filter by status
+        enum:
+        - borrowed
+        - returned
+        in: query
+        name: status
+        type: string
+      - description: Filter by start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: Filter by end date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
       produces:
       - application/json
       responses:
